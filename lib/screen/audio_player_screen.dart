@@ -1,8 +1,11 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:music_player/model/audio_position.dart';
+import 'package:music_player/repository/playlist.dart';
 import 'package:music_player/widgets/audio_control_bar.dart';
+import 'package:music_player/widgets/media_meta_data.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MusicPlayerScreen extends StatefulWidget {
@@ -14,6 +17,7 @@ class MusicPlayerScreen extends StatefulWidget {
 
 class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
   late AudioPlayer _audioPlayer;
+  final _playlist = PlayList().playList;
 
   Stream<AudioPosition> get _positionDataStream =>
       Rx.combineLatest3<Duration, Duration, Duration?, AudioPosition>(
@@ -30,12 +34,15 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
   @override
   void initState() {
     super.initState();
-    _audioPlayer = AudioPlayer()..setAsset('assets/audio/shameless.mp3');
+    // for single music
+    // _audioPlayer = AudioPlayer()..setAsset('assets/audio/cupid.mp3');
+    _audioPlayer = AudioPlayer();
     _init;
   }
 
   Future<void> get _init async {
     await _audioPlayer.setLoopMode(LoopMode.all);
+    await _audioPlayer.setAudioSource(_playlist);
   }
 
   @override
@@ -63,6 +70,23 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Audio details - image, title, author
+                StreamBuilder<SequenceState?>(
+                  stream: _audioPlayer.sequenceStateStream,
+                  builder: (context, snapshot) {
+                    final state = snapshot.data;
+                    if (state?.sequence.isEmpty ?? true) {
+                      return const SizedBox();
+                    }
+                    final metadata = state!.currentSource!.tag as MediaItem;
+                    return MediaMetaData(
+                      imageUrl: metadata.artUri.toString(),
+                      title: metadata.title,
+                      artist: metadata.artist ?? "",
+                    );
+                  },
+                ),
+                
                   // audio duration progressBar
                   StreamBuilder<AudioPosition>(
                     stream: _positionDataStream,
