@@ -5,14 +5,14 @@ class AudioControl extends StatelessWidget {
   const AudioControl({super.key, required this.audioPlayer});
   final AudioPlayer audioPlayer;
 
-  void seekBack() {
+  void seekSecBackward() {
     final currentPos = audioPlayer.position;
     if (currentPos >= const Duration(seconds: 30)) {
       audioPlayer.seek(currentPos - const Duration(seconds: 30));
     }
   }
 
-  void seekForward() {
+  void seekSecForward() {
     final currentPos = audioPlayer.position;
     if ((audioPlayer.duration! - currentPos) >= const Duration(seconds: 30)) {
       audioPlayer.seek(currentPos + const Duration(seconds: 30));
@@ -26,54 +26,54 @@ class AudioControl extends StatelessWidget {
       children: [
         IconButton(
           onPressed: audioPlayer.seekToPrevious,
-          iconSize: 40,
+          icon: const Icon(Icons.skip_previous),
           color: Colors.white,
-          icon: const Icon(Icons.skip_previous_outlined),
+          iconSize: 40,
         ),
         IconButton(
-          onPressed: seekBack,
-          iconSize: 40,
-          color: Colors.white,
+          onPressed: seekSecBackward,
           icon: const Icon(Icons.keyboard_double_arrow_left_rounded),
+          color: Colors.white,
+          iconSize: 40,
         ),
         StreamBuilder<PlayerState>(
           stream: audioPlayer.playerStateStream,
           builder: (context, snapshot) {
-            final player = snapshot.data;
-            final processingState = player?.processingState;
-            final playing = player?.playing;
+            final playerState = snapshot.data;
+            final processingState = playerState?.processingState;
+            final playing = playerState?.playing;
             if (!(playing ?? false)) {
               return IconButton(
                 onPressed: audioPlayer.play,
-                iconSize: 40,
+                icon: const Icon(Icons.play_arrow),
                 color: Colors.white,
-                icon: const Icon(Icons.play_arrow_outlined),
+                iconSize: 40,
               );
             } else if (processingState != ProcessingState.completed) {
               return IconButton(
                 onPressed: audioPlayer.pause,
-                iconSize: 40,
+                icon: const Icon(Icons.pause),
                 color: Colors.white,
-                icon: const Icon(Icons.pause_circle_outline),
+                iconSize: 40,
               );
             }
             return const Icon(
-              Icons.pause_circle_outline,
-              size: 40,
+              Icons.play_arrow,
+              color: Colors.grey,
             );
           },
         ),
         IconButton(
-          onPressed: seekForward,
-          iconSize: 40,
-          color: Colors.white,
+          onPressed: seekSecForward,
           icon: const Icon(Icons.keyboard_double_arrow_right_rounded),
+          color: Colors.white,
+          iconSize: 40,
         ),
         IconButton(
           onPressed: audioPlayer.seekToNext,
-          iconSize: 40,
+          icon: const Icon(Icons.skip_next),
           color: Colors.white,
-          icon: const Icon(Icons.skip_next_outlined),
+          iconSize: 40,
         ),
       ],
     );
